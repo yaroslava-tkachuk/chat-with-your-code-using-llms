@@ -2,8 +2,6 @@ import textwrap
 import logging
 from llama_index.core.query_engine import BaseQueryEngine
 from llama_index.llms.openai import OpenAI
-from llama_index.core.response_synthesizers import TreeSummarize
-
 from app.github_repo_loader import GitHubRepoLoader
 from app.vector_store import VectorStore
 
@@ -13,10 +11,8 @@ logging.basicConfig(level=logging.INFO)
 def chat_with_code() -> None:
     documents = GitHubRepoLoader().fetch_repository_as_documents()
     vector_store = VectorStore()
-    index = vector_store.upload_documents(documents)
-    query_engine = index.as_query_engine(
-        response_synthesizer=TreeSummarize(),
-        llm=OpenAI(model="gpt-4o"))
+    vector_store.upload_documents(documents)
+    query_engine = vector_store.get_query_engine(llm=OpenAI(model="gpt-4o"))
     __test_rag_with_vector_search(query_engine)
     __process_user_queries(query_engine)
 
